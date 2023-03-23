@@ -27,36 +27,29 @@ WHERE employee_id BETWEEN 3 AND 6 #que el empleado esté entre la posición 3 y 
 el id del producto, el nombre del producto, el precio unitario, la cantidad, el descuento y el precio de venta después de haber aplicado el descuento.*/
 
 SELECT o1.order_id, o1.product_id, o2.product_name, o1.unit_price, o1.quantity, o1.discount, (o1.unit_price *o1.quantity) * (1- o1.discount) AS PrecioVenta
-FROM order_details AS o1
-INNER JOIN products AS o2
-ON o1.product_id = o2.product_id;
+FROM order_details AS o1 #desde la tabla order_details queremos que también consulte con inner
+INNER JOIN products AS o2 #unimos order_details a products por inner porque usamos columnas que no  se llaman igual
+ON o1.product_id = o2.product_id; #nos dice por las columna que lo unimos
 
 
 /*4. Usando una subconsulta, muestra los productos cuyos precios estén por encima del precio medio total de los productos de la BBDD.*/
 
-SELECT product_name, unit_price
+SELECT product_name, unit_price                 #esta consulta engloba la subconsulta, y nos dice que saque por pantalla las columnas del select
 	FROM products
-	WHERE unit_price > (
-						SELECT AVG(unit_price)
-						FROM products);
+	WHERE unit_price > (                         # donde el precio unitario sea mayor que lo que engloba la subconsulta
+						SELECT AVG(unit_price)   #esta consula nos enseña la media del precio unitario
+						FROM products);          #de productos
 
 
 /*5. ¿Qué productos ha vendido cada empleado y cuál es la cantidad vendida de cada uno de ellos?*/
 
-
-    SELECT first_name AS "Nombre", last_name AS "Apellido", product_name AS "Producto", SUM(quantity) AS "Cantidad_total_vendida", employees.employee_id 
-FROM employees
-INNER JOIN orders
-	ON employees.employee_id = orders.employee_id
-INNER JOIN order_details
-	ON order_details.order_id = orders.order_id
-INNER JOIN products
-	ON order_details.product_id = products.product_id
-GROUP BY employees.employee_id, products.product_name
-ORDER BY employees.employee_id, Producto;
-
-
-/*6.Basándonos en la query anterior, ¿qué empleado es el que vende más productos? Soluciona este ejercicio con una subquery*/
-
-
-
+SELECT first_name, last_name, product_name AS "Producto", SUM(quantity) AS "TotalVendido", employees.employee_id #le pedimos que nos sume la cantidad de los productos 
+	FROM employees
+	INNER JOIN orders #lo unimos por inner porque necesitamos unirlas pero por diferentes columnas
+		ON employees.employee_id = orders.employee_id  
+	INNER JOIN order_details
+		ON order_details.order_id = orders.order_id
+	INNER JOIN products
+		ON order_details.product_id = products.product_id
+	GROUP BY employees.employee_id, products.product_name #agrupamos con group by porque tenemos la función de agregación SUM
+	ORDER BY employees.employee_id, Producto;
